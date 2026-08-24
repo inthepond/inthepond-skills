@@ -40,9 +40,26 @@ After a report you correct any reading conversationally ("by *simple* I meant ea
 
 Every report ends the same way: *No conclusion is offered. The differences, if any, are yours to find.*
 
+### Install
+
+Claude Code — add this repo as a plugin marketplace, then install the skill by name:
+
+```
+/plugin marketplace add inthepond/inthepond-skills
+/plugin install gnose@inthepond-skills
+```
+
+Any agent that reads `SKILL.md` folders (Claude Code, Cursor, Codex, and others) — one command, installs just this skill:
+
+```
+npx skills add inthepond/inthepond-skills --skill gnose
+```
+
+Add `-g` to install for your user rather than the current project. Or copy the `gnose/` folder into your skills directory by hand (for Claude Code: `~/.claude/skills/gnose/`).
+
 ### Use it
 
-Copy `gnose/` into your skills directory (for Claude Code: `~/.claude/skills/gnose/`), then:
+Then, in a conversation:
 
 - "gnose this prompt: …"
 - "how would Claude read this system prompt?"

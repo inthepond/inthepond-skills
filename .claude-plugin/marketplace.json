@@ -1,0 +1,19 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "inthepond-skills",
+  "description": "Skills that give creativity and thinking back to the person using the model, not productivity.",
+  "owner": {
+    "name": "inthepond",
+    "url": "https://inthepond.com.au/"
+  },
+  "plugins": [
+    {
+      "name": "gnose",
+      "description": "An introspection layer between you and the model: shows how an LLM reads your prompt, lets you correct the reading in plain language, and reshapes the prompt to what you meant. No scores, no conclusions.",
+      "version": "1.0.0",
+      "source": "./gnose",
+      "homepage": "https://github.com/inthepond/inthepond-skills/tree/main/gnose",
+      "keywords": ["introspection", "prompts", "interpretability", "human-in-the-loop"]
+    }
+  ]
+}
