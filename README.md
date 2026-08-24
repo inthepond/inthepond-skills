@@ -1,5 +1,7 @@
 # inthepond-skills
 
+From [inthepond](https://inthepond.com.au/) — more novel things live there; come say hello.
+
 A small set of Skills, built one at a time from a written spec. Each skill is a folder with a `SKILL.md` entry point, a `references/` directory for depth that loads on demand, and optional `assets/`.
 
 ## Why this exists
