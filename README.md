@@ -1,6 +1,6 @@
 # inthepond-skills
 
-A small set of Claude Skills, built one at a time from a written spec. Each skill is a folder with a `SKILL.md` entry point, a `references/` directory for depth that loads on demand, and optional `assets/`.
+A small set of Skills, built one at a time from a written spec. Each skill is a folder with a `SKILL.md` entry point, a `references/` directory for depth that loads on demand, and optional `assets/`.
 
 ## Why this exists
 
