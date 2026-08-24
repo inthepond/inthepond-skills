@@ -1,0 +1,291 @@
+<title>Gnose</title>
+<!--
+  Gnose report template. Static: all data is baked in at render time; no API calls.
+
+  How to fill:
+  - Placeholders look like {{NAME}}. Replace every one; HTML-escape user text (& < > ").
+  - Delete every HTML comment (this header included) from the rendered page; they are fill instructions, not content.
+  - Keep exactly ONE of the two mode blocks (GNOSE:SHORT or GNOSE:LONG) and delete the other,
+    including its BEGIN/END comment lines.
+  - REPEAT blocks: duplicate the markup between "GNOSE:REPEAT name" and "/GNOSE:REPEAT name"
+    once per item, then delete the marker comments.
+  - OPTIONAL blocks: delete the whole block (markers included) when it does not apply.
+  - Weights: class="w-high" | "w-medium" | "w-low" | "w-ignored"; marks: █ ▓ ░ ✕.
+    Never render percentages or scores anywhere.
+  - {{TITLE}}: "short utterance" | "long prompt — predict" | "long prompt — diagnose".
+    {{META}}: e.g. "granularity: paragraph" (short mode: leave empty).
+  - Published through the Artifact tool: use this file as-is (it wraps the skeleton itself).
+    Written as a standalone file: prepend the line
+      <!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f3ee;
+    --bg-soft: #ebe8e0;
+    --bg-edit: #fff8ec;
+    --ink: #1a1814;
+    --ink-soft: #5a564d;
+    --ink-faint: #8a857a;
+    --ink-ghost: #b8b3a6;
+    --accent: #b8341a;
+    --rule: #d4cfc2;
+    --serif: "Fraunces", Georgia, "Times New Roman", "Songti SC", serif;
+    --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { background: var(--bg); }
+  body {
+    margin: 0;
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 17px;
+    line-height: 1.55;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: .04;
+    z-index: 1000;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0'/></filter><rect width='100%25' height='100%25' filter='url(%23g)'/></svg>");
+    background-size: 240px 240px;
+  }
+  .page { max-width: 720px; margin: 0 auto; padding: 64px 24px 96px; }
+
+  header .brand {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: .08em;
+    color: var(--ink-faint);
+    font-variant-caps: all-small-caps;
+  }
+  header h1 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 30px;
+    line-height: 1.2;
+    margin: 10px 0 6px;
+    letter-spacing: -.01em;
+  }
+  header .meta { font-family: var(--mono); font-size: 12px; color: var(--ink-faint); letter-spacing: .04em; }
+  header .meta:empty { display: none; }
+
+  section { margin-top: 52px; }
+  .label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: .08em;
+    font-variant-caps: all-small-caps;
+    color: var(--ink-soft);
+    margin-bottom: 18px;
+  }
+  .label .num {
+    background: var(--accent);
+    color: var(--bg);
+    padding: 2px 7px;
+    border-radius: 2px;
+    letter-spacing: .06em;
+    font-variant-caps: normal;
+    font-weight: 500;
+  }
+  .label::after { content: ""; flex: 1; height: 1px; background: var(--rule); }
+
+  .row { display: grid; grid-template-columns: 96px 1fr; gap: 14px; align-items: baseline; margin: 10px 0; }
+  .row .k { font-family: var(--mono); font-size: 12px; color: var(--ink-faint); letter-spacing: .04em; white-space: nowrap; }
+  .row .v { white-space: pre-wrap; overflow-wrap: anywhere; }
+  .row .v.heard { font-style: italic; font-variation-settings: "opsz" 18; }
+
+  .concept { padding: 18px 0 4px; border-top: 1px solid var(--rule); }
+  .concept:first-of-type { border-top: 0; padding-top: 0; }
+  .concept .term { font-weight: 500; font-size: 19px; }
+  .concept .as { color: var(--ink-soft); }
+  .concept .as::before { content: " — read as: "; color: var(--ink-faint); font-family: var(--mono); font-size: 12px; letter-spacing: .04em; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 12px; }
+  .chip {
+    font-family: var(--mono);
+    font-size: 12px;
+    background: var(--bg-soft);
+    color: var(--ink-soft);
+    padding: 3px 8px;
+    border-radius: 3px;
+    letter-spacing: .02em;
+  }
+  .chips-k { font-family: var(--mono); font-size: 12px; color: var(--ink-faint); letter-spacing: .04em; margin-top: 8px; }
+
+  .alt { display: grid; grid-template-columns: 64px 1fr; gap: 14px; margin: 12px 0; align-items: baseline; }
+  .alt .n { font-family: var(--mono); font-size: 12px; color: var(--accent); letter-spacing: .06em; white-space: nowrap; }
+  .alt .v { overflow-wrap: anywhere; }
+
+  .chunk {
+    display: grid;
+    grid-template-columns: 22px 34px 1fr;
+    gap: 10px;
+    padding: 8px 0;
+    align-items: baseline;
+    outline: none;
+  }
+  .chunk .mark, .chunk .n { font-family: var(--mono); font-size: 12px; letter-spacing: .04em; }
+  .chunk .n { color: var(--ink-faint); }
+  .chunk .text { white-space: pre-wrap; overflow-wrap: anywhere; }
+  .chunk.w-high .text { color: var(--ink); font-weight: 500; }
+  .chunk.w-high .mark { color: var(--ink); }
+  .chunk.w-medium .text { color: var(--ink-soft); font-weight: 400; }
+  .chunk.w-medium .mark { color: var(--ink-soft); }
+  .chunk.w-low .text { color: var(--ink-ghost); font-weight: 300; }
+  .chunk.w-low .mark { color: var(--ink-ghost); }
+  .chunk.w-ignored .text { color: var(--ink-ghost); font-weight: 300; text-decoration: line-through; text-decoration-color: var(--ink-ghost); }
+  .chunk.w-ignored .mark { color: var(--accent); }
+  .chunk .why {
+    grid-column: 3;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--ink-faint);
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: max-height .18s ease, opacity .18s ease;
+    text-decoration: none;
+  }
+  .chunk:hover .why, .chunk:focus .why, .chunk.open .why { max-height: 12em; opacity: 1; margin-top: 4px; }
+  .chunk:hover, .chunk.open { background: var(--bg-edit); box-shadow: 0 0 0 8px var(--bg-edit); border-radius: 2px; cursor: default; }
+  .legend { font-family: var(--mono); font-size: 12px; color: var(--ink-faint); letter-spacing: .04em; margin-top: 18px; }
+
+  .div { border-left: 2px solid var(--accent); padding: 2px 0 2px 18px; margin: 22px 0; }
+  .div .q { font-style: italic; margin-bottom: 8px; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .div .row { grid-template-columns: 132px 1fr; margin: 6px 0; }
+
+  .paths .path { display: grid; grid-template-columns: 196px 1fr; gap: 14px; margin: 10px 0; align-items: baseline; }
+  .paths .path .k { font-weight: 500; }
+  .paths .path .v { color: var(--ink-soft); }
+
+  .note { color: var(--ink-soft); }
+  .closing { margin-top: 60px; font-style: italic; color: var(--ink-soft); }
+  footer {
+    margin-top: 72px;
+    padding-top: 16px;
+    border-top: 1px solid var(--rule);
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-faint);
+    letter-spacing: .04em;
+  }
+
+  @media (max-width: 520px) {
+    .page { padding: 40px 18px 72px; }
+    .row, .alt, .div .row, .paths .path { grid-template-columns: 1fr; gap: 2px; }
+    .chunk { grid-template-columns: 18px 30px 1fr; }
+    .chunk .why { grid-column: 1 / -1; }
+  }
+</style>
+
+<div class="page">
+  <header>
+    <div class="brand">gnose</div>
+    <h1>{{TITLE}}</h1>
+    <div class="meta">{{META}}</div>
+  </header>
+
+  <!-- GNOSE:SHORT:BEGIN -->
+  <section>
+    <div class="label"><span class="num">01</span><span>what it heard</span></div>
+    <div class="row"><span class="k">you said</span><span class="v">{{ORIGINAL}}</span></div>
+    <div class="row"><span class="k">it heard</span><span class="v heard">{{REPHRASED}}</span></div>
+  </section>
+
+  <!-- GNOSE:OPTIONAL concepts — delete this block when no concept carries meaningful ambiguity, and use the NO_AMBIGUITY block instead -->
+  <section>
+    <div class="label"><span class="num">02</span><span>the shape of each concept</span></div>
+    <!-- GNOSE:REPEAT concept -->
+    <div class="concept">
+      <span class="term">{{TERM}}</span><span class="as">{{INTERPRETATION}}</span>
+      <div class="chips-k">neighbors</div>
+      <div class="chips">
+        <!-- one chip per neighbor, 8 to 10 -->
+        <span class="chip">{{NEIGHBOR}}</span>
+      </div>
+    </div>
+    <!-- /GNOSE:REPEAT concept -->
+  </section>
+
+  <section>
+    <div class="label"><span class="num">03</span><span>what it didn't hear</span></div>
+    <!-- GNOSE:REPEAT alt -->
+    <div class="alt"><span class="n">alt {{ALT_N}}</span><span class="v">{{ALT_TEXT}}</span></div>
+    <!-- /GNOSE:REPEAT alt -->
+  </section>
+  <!-- /GNOSE:OPTIONAL concepts -->
+
+  <!-- GNOSE:OPTIONAL no-ambiguity — use only when 02/03 are skipped -->
+  <section>
+    <p class="note">{{NO_AMBIGUITY_NOTE}}</p>
+  </section>
+  <!-- /GNOSE:OPTIONAL no-ambiguity -->
+  <!-- GNOSE:SHORT:END -->
+
+  <!-- GNOSE:LONG:BEGIN -->
+  <section>
+    <div class="label"><span class="num">01</span><span>{{WEIGH_TITLE}}</span></div>
+    <!-- {{WEIGH_TITLE}}: "what it would weigh" (predict) | "what it weighed" (diagnose) -->
+    <!-- GNOSE:REPEAT chunk -->
+    <div class="chunk w-{{WEIGHT}}" tabindex="0">
+      <span class="mark">{{MARK}}</span>
+      <span class="n">{{N}}</span>
+      <span class="text">{{CHUNK_TEXT}}</span>
+      <span class="why">{{WHY}}</span>
+    </div>
+    <!-- /GNOSE:REPEAT chunk -->
+    <div class="legend">█ high · ▓ medium · ░ low · ✕ ignored — hover a chunk for the reasoning behind its weight.</div>
+  </section>
+
+  <section>
+    <div class="label"><span class="num">02</span><span>{{DIVERGE_TITLE}}</span></div>
+    <!-- {{DIVERGE_TITLE}}: "where it might diverge" (predict) | "where it diverged" (diagnose) -->
+    <!-- GNOSE:REPEAT divergence -->
+    <div class="div">
+      <div class="q">“{{FROM_PROMPT}}”</div>
+      <div class="row"><span class="k">it read this as</span><span class="v">{{DEFAULT_READING}}</span></div>
+      <!-- GNOSE:OPTIONAL evidence — diagnose mode only, when output evidence exists -->
+      <div class="row"><span class="k">in the output</span><span class="v">{{EVIDENCE}}</span></div>
+      <!-- /GNOSE:OPTIONAL evidence -->
+      <div class="row"><span class="k">you probably meant</span><span class="v">{{INTENDED_READING}}</span></div>
+    </div>
+    <!-- /GNOSE:REPEAT divergence -->
+    <!-- GNOSE:OPTIONAL no-divergence — use instead of the repeat block when the list is empty -->
+    <p class="note">{{NO_DIVERGENCE_NOTE}}</p>
+    <!-- /GNOSE:OPTIONAL no-divergence -->
+  </section>
+
+  <!-- GNOSE:OPTIONAL paths — only when at least one divergence exists (or, on an empty diagnose, keep only the expectation path) -->
+  <section class="paths">
+    <div class="label"><span class="num">03</span><span>what to do about it</span></div>
+    <div class="path"><span class="k">reshape the prompt</span><span class="v">edit the prompt so it reads the way you meant</span></div>
+    <div class="path"><span class="k">reshape the expectation</span><span class="v">the reading was accurate; realign the prompt to your true goal</span></div>
+  </section>
+  <!-- /GNOSE:OPTIONAL paths -->
+  <!-- GNOSE:LONG:END -->
+
+  <p class="closing">No conclusion is offered. The differences, if any, are yours to find.</p>
+
+  <footer>Gnose — a layer between you and the model.</footer>
+</div>
+
+<script>
+  // Touch/keyboard fallback for the hover reveal. No dependencies.
+  document.querySelectorAll('.chunk').forEach(function (el) {
+    el.addEventListener('click', function () { el.classList.toggle('open'); });
+    el.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); el.classList.toggle('open'); }
+    });
+  });
+</script>
