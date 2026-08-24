@@ -2,6 +2,14 @@
 
 A small set of Claude Skills, built one at a time from a written spec. Each skill is a folder with a `SKILL.md` entry point, a `references/` directory for depth that loads on demand, and optional `assets/`.
 
+## Why this exists
+
+This skill directory is not here to make you more productive.
+
+Most tools built on top of language models are aimed at output: more of it, faster, with less of you in the loop. The skills here point the other way. They exist to give creativity and thinking back to the person using the model — by making the model's own reading visible, by declining to draw conclusions on your behalf, and by leaving the differences for you to find.
+
+A model is very good at supplying a default. These skills are here so the default stays yours to accept, correct, or refuse.
+
 ## gnose
 
 An introspection layer between you and the model.
