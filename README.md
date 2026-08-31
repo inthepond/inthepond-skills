@@ -74,3 +74,57 @@ Ask for "a shareable version" to get the report as a page ([`gnose/assets/report
 - [`gnose/references/reshape.md`](gnose/references/reshape.md) — reshape rules (translator, not optimizer)
 - [`gnose/assets/report.html`](gnose/assets/report.html) — report template for the shareable page
 - [`gnose/assets/gif-src/`](gnose/assets/gif-src/) — source and build script for the GIF above
+
+## samesame
+
+*Same same, but different.* A harness for carrying a UI through a transition while its functionality stays fixed.
+
+Born from a real story: a developer ports an AngularJS app to modern Angular, everything works, and the UI looks utterly different — but describing two hundred visual defects to a coding agent piece by piece costs more than porting by hand, so the agent gets abandoned. Samesame removes the human from the *find → describe → verify* loop: it builds the agent its own eyes (a local screenshot + computed-style harness over both versions), writes one plan you approve, then converges increment by increment — resumable whenever your thirty minutes are up.
+
+### What it does
+
+Two modes, chosen from your intent:
+
+| Mode | You want | Ground truth | Verified by |
+|---|---|---|---|
+| **match** | the new stack to look like the old one (ports, upgrades) | the legacy UI, captured | pixel diffs + computed-style deltas, converged cause by cause |
+| **overhaul** | a new look that loses no functionality (redesigns) | a functional inventory of every route, control, form, field | a coverage contract — every item mapped to a treatment; removals need your explicit approval |
+
+In both modes: an itemized plan with evidence you can open, one explicit approval gate before any code changes, checkpointed increments, and a `state.json` so "continue samesame" resumes after any gap.
+
+### What it is not
+
+- Not a redesign oracle — direction and acceptance are yours; it never judges what looks better.
+- Not a cloud service — everything is local (Playwright + pixelmatch as isolated dev-deps, with a hand-captured-screenshots fallback for locked-down machines). Nothing leaves your machine.
+- Not a big-bang rewriter — no code before approval; every step small, checkpointed, revertable.
+
+### Install
+
+Claude Code:
+
+```
+/plugin marketplace add inthepond/inthepond-skills
+/plugin install samesame@inthepond-skills
+```
+
+Any agent that reads `SKILL.md` folders:
+
+```
+npx skills add inthepond/inthepond-skills --skill samesame
+```
+
+### Use it
+
+- "the port works but looks completely different — samesame it"
+- "redesign this UI with our design system, but don't lose a single feature"
+- "continue samesame" (tomorrow, or next month)
+
+### Files
+
+- [`samesame/SKILL.md`](samesame/SKILL.md) — entry point: principles, mode classification, workflow, edge cases
+- [`samesame/references/inventory.md`](samesame/references/inventory.md) — enumerating routes, states, and the functional inventory
+- [`samesame/references/harness.md`](samesame/references/harness.md) — the three capture tiers, config, auth, re-capture discipline
+- [`samesame/references/match.md`](samesame/references/match.md) — cause taxonomy and the convergence loop
+- [`samesame/references/overhaul.md`](samesame/references/overhaul.md) — design direction, the coverage contract, execution order
+- [`samesame/references/plan-format.md`](samesame/references/plan-format.md) — plan file, approval protocol, state and resuming
+- [`samesame/assets/harness/`](samesame/assets/harness/) — capture/diff/login script templates copied into each project's `.samesame/harness/`

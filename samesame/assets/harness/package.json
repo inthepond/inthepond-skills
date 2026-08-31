@@ -1,0 +1,11 @@
+{
+  "name": "samesame-harness",
+  "private": true,
+  "type": "module",
+  "description": "Local capture/diff harness for the samesame skill. Lives in .samesame/harness/, never touches the project's own dependencies.",
+  "dependencies": {
+    "pixelmatch": "^6.0.0",
+    "playwright": "^1.49.0",
+    "pngjs": "^7.0.0"
+  }
+}

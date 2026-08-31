@@ -14,6 +14,14 @@
       "source": "./gnose",
       "homepage": "https://github.com/inthepond/inthepond-skills/tree/main/gnose",
       "keywords": ["introspection", "prompts", "interpretability", "human-in-the-loop"]
+    },
+    {
+      "name": "samesame",
+      "description": "Same same, but different: carry a UI through a port or a redesign without losing what matters. Builds a local ground-truth harness (screenshots + computed styles), writes a plan you approve once, then converges in checkpointed, resumable increments. Nothing leaves your machine.",
+      "version": "1.0.0",
+      "source": "./samesame",
+      "homepage": "https://github.com/inthepond/inthepond-skills/tree/main/samesame",
+      "keywords": ["migration", "visual-regression", "ui-overhaul", "parity", "enterprise", "human-in-the-loop"]
     }
   ]
 }
