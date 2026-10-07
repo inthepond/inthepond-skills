@@ -22,6 +22,14 @@
       "source": "./samesame",
       "homepage": "https://github.com/inthepond/inthepond-skills/tree/main/samesame",
       "keywords": ["migration", "visual-regression", "ui-overhaul", "parity", "enterprise", "human-in-the-loop"]
+    },
+    {
+      "name": "notjunior",
+      "description": "Know why, not just what: a senior engineer beside you with your codebase open. Explains how code reaches production, why the architecture has its shape, what each technology is for, how features run and incidents are handled — every claim cited or labelled — then has you explain it back. Rehearses interviews; never answers live ones. Its mod offers an explain-back check after Claude changes files, and before they ship.",
+      "version": "1.0.0",
+      "source": "./notjunior",
+      "homepage": "https://github.com/inthepond/inthepond-skills/tree/main/notjunior",
+      "keywords": ["learning", "onboarding", "junior-developers", "sdlc", "architecture", "incident-response", "interview-practice", "mod", "human-in-the-loop"]
     }
   ]
 }

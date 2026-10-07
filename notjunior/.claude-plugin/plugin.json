@@ -1,0 +1,18 @@
+{
+  "name": "notjunior",
+  "version": "1.0.0",
+  "description": "Know why, not just what: understand the project you work in, then explain it back. Its mod offers an explain-back check after Claude changes files, and before they ship.",
+  "author": { "name": "inthepond", "url": "https://inthepond.com.au/" },
+  "homepage": "https://github.com/inthepond/inthepond-skills/tree/main/notjunior",
+  "license": "MIT",
+  "skills": "./",
+  "types": "./types/index.d.ts",
+  "userConfig": {
+    "shipCheck": {
+      "type": "string",
+      "title": "Ship check",
+      "description": "When Claude is about to commit, push, or open a pull request while changes it made this session haven't been explained back: nudge (a reminder, then it runs), hold (refused until you run /notjunior-check), or off.",
+      "default": "nudge"
+    }
+  }
+}

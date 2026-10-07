@@ -1,0 +1,187 @@
+<style>
+  :root{--bg:#f5f3ee;--ink:#1a1814;--ink-soft:#5a564d;--ink-faint:#8a857a;--rule:#d4cfc2;--accent:#b8341a;
+        --win:#1c1a17;--edge:#2e2b26;--t:#ece8df;--t-soft:#b9b3a6;--t-faint:#7f796e;--t-acc:#e2805f;--t-ok:#9cc59a;--t-warn:#e3b35c;--t-q:#93b6da;
+        --serif:"Fraunces",Georgia,serif;--mono:"JetBrains Mono",Menlo,monospace}
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg)}
+  body{width:960px;height:540px;overflow:hidden;color:var(--ink);font-family:var(--serif);-webkit-font-smoothing:antialiased}
+  .stage{position:relative;width:960px;height:540px}
+  .brand{position:absolute;left:36px;top:27px;font-family:var(--mono);font-size:12px;letter-spacing:.12em;color:var(--ink-faint);text-transform:lowercase;font-variant-caps:all-small-caps}
+  .cap{position:absolute;left:150px;right:36px;top:21px;display:flex;align-items:baseline;gap:10px;font-size:18px;line-height:1.3}
+  .cap .num{font-family:var(--mono);font-size:11px;background:var(--accent);color:var(--bg);padding:2px 7px 1px;border-radius:2px;letter-spacing:.06em;font-weight:500}
+  .cap .txt{font-style:italic}
+  .win{position:absolute;left:36px;right:36px;top:58px;bottom:26px;background:var(--win);border-radius:8px;box-shadow:0 12px 30px rgba(26,24,20,.16);overflow:hidden;
+       font-family:var(--mono);font-size:12.5px;line-height:20px;color:var(--t)}
+  .chrome{height:28px;display:flex;align-items:center;gap:7px;padding:0 12px;border-bottom:1px solid var(--edge);color:var(--t-faint);font-size:11px}
+  .chrome i{width:10px;height:10px;border-radius:50%;background:#3b3732;display:inline-block}
+  .chrome span{margin-left:8px}
+  .body{position:absolute;left:0;right:0;top:28px;bottom:80px;overflow:hidden}
+  .scene{position:absolute;left:22px;right:22px;top:12px}
+  .ln{white-space:pre-wrap;min-height:20px}
+  .gap{height:8px}
+  .user{background:#29261f;border-radius:3px;padding:1px 8px;margin:0 -8px 6px;color:var(--t)}
+  .user .gt{color:var(--t-faint)}
+  .hd{color:var(--t-acc);font-weight:500}
+  .soft{color:var(--t-soft)} .faint{color:var(--t-faint)} .ok{color:var(--t-ok)} .warn{color:var(--t-warn)} .no{color:var(--t-acc)}
+  .cite{color:var(--t-q)}
+  .row{display:grid;grid-template-columns:1fr auto;column-gap:18px}
+  .tag{font-size:10.5px;line-height:16px;padding:0 6px;border-radius:2px;align-self:center}
+  .tag.doc{background:#2e3b2b;color:var(--t-ok)} .tag.inf{background:#3c3423;color:var(--t-warn)} .tag.unk{background:#3e2a25;color:var(--t-acc)}
+  .dot{color:var(--t-ok)}
+  .band{position:absolute;left:22px;right:22px;bottom:54px;height:20px;white-space:nowrap;color:var(--t-faint);font-size:12px}
+  .band .btn{color:var(--t);padding:0 1px}
+  .band .btn.press{background:var(--t);color:var(--win)}
+  .prompt{position:absolute;left:14px;right:14px;bottom:12px;height:36px;border:1px solid #4a453e;border-radius:6px;padding:7px 10px;color:var(--t);white-space:nowrap;overflow:hidden}
+  .prompt .gt{color:var(--t-faint)}
+  .caret{display:inline-block;width:7px;height:15px;background:var(--t-acc);vertical-align:-3px;margin-left:1px}
+  .toast{position:absolute;right:22px;bottom:58px;background:#2c2924;border:1px solid #4a453e;border-left:3px solid var(--t-warn);border-radius:4px;padding:5px 10px;font-size:12px;color:var(--t)}
+  .end{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:var(--bg)}
+  .end .big{font-size:58px;font-weight:500;letter-spacing:-.01em}
+  .end .rule{width:56px;height:2px;background:var(--accent)}
+  .end .tg{font-style:italic;font-size:21px;color:var(--ink-soft)}
+</style>
+<div class="stage">
+  <div class="brand">notjunior</div>
+  <div class="cap" id="cap"><span class="num" id="capnum"></span><span class="txt" id="captxt"></span></div>
+  <div class="win" id="win">
+    <div class="chrome"><i></i><i></i><i></i><span>~/checkout — claude</span></div>
+    <div class="body" id="body"></div>
+    <div class="band" id="band">notjunior · Claude changed 2 files you haven't explained back (client.ts +1) <span class="btn" id="bcheck">[ Check I understand it ]</span> <span class="btn">[ Later ]</span></div>
+    <div class="prompt"><span class="gt">&gt; </span><span id="ptext"></span></div>
+    <div class="toast" id="toast">notjunior: 2 changed files not explained back yet — /notjunior-check when you're ready</div>
+  </div>
+  <div class="end" id="end"><div class="big">notjunior</div><div class="rule"></div><div class="tg">know why, not just what</div></div>
+</div>
+<script>
+// One illustrative session. Every scene: a caption, an optional typed prompt, and lines that appear at set times (ms).
+const user = text => `<div class="ln user"><span class="gt">&gt; </span>${text}</div>`;
+const ln = (html, cls = '') => `<div class="ln ${cls}">${html}</div>`;
+const row = (left, right) => `<div class="ln row"><span>${left}</span>${right}</div>`;
+const gap = '<div class="gap"></div>';
+const tag = (kind, label) => `<span class="tag ${kind}">${label}</span>`;
+const cite = path => `<span class="cite">${path}</span>`;
+
+const SCENES = [
+  { from: 200, to: 9000, num: '01', cap: 'ask about your project — every claim cited or labelled',
+    prompt: { text: 'why does my PR go through so many steps before it reaches prod?', at: 500, ms: 30 },
+    lines: [
+      [2600, user('why does my PR go through so many steps before it reaches prod?')],
+      [2900, ln('notjunior · lifecycle', 'hd')],
+      [3200, ln('A green PR proves your change works on its own. Three gates still stand between it and users.')],
+      [3200, gap],
+      [3500, row(`01 merge queue — re-runs CI on your change on top of the PRs ahead of it   ${cite('ci.yml:57')}`, '')],
+      [3800, row('<span class="soft">   prevents: two green PRs combining into a broken main</span>', tag('inf', 'inferred'))],
+      [4100, row(`02 build once — staging and prod run the same image digest   ${cite('deploy.yml:112')}`, '')],
+      [4400, row('<span class="soft">   prevents: “passed in staging” describing a different build</span>', tag('doc', 'documented'))],
+      [4700, row(`03 prod approval — a person signs off every release   ${cite('deploy.yml:140')}`, '')],
+      [5000, row('<span class="soft">   who approves, and what do they check?</span>', tag('unk', 'unknown'))],
+      [5000, gap],
+      [5300, ln('questions for your team', 'hd')],
+      [5600, ln('- who are the prod reviewers, and what do they look for?', 'soft')],
+      [5600, gap],
+      [5900, ln('<i>Explain it back in your own words when you’re ready — “I don’t know yet” is a fine place to start.</i>', 'faint')],
+    ] },
+  { from: 9300, to: 15300, num: '02', cap: 'explain it back — wrong is named plainly, and kindly',
+    prompt: { text: 'so the merge queue just runs the same tests twice?', at: 9500, ms: 32 },
+    lines: [
+      [11300, user('so the merge queue just runs the same tests twice?')],
+      [11600, ln(`<span class="no">not right</span> — it runs them on your change <i>combined</i> with everything queued ahead of it ${cite('(ci.yml:57)')}.`)],
+      [11950, ln('Your PR was green against main as it was; the queue checks main as it’s about to be.', 'soft')],
+      [12300, ln('<span class="ok">you got right</span> — it does re-run CI. It’s answering a different question.')],
+      [12300, gap],
+      [12650, ln('<i>Next one: your PR drops out of the queue. Where do you look first?</i>', 'faint')],
+    ] },
+  { from: 15600, to: 20900, num: '03', cap: 'the mod — after Claude changes code, it offers the check',
+    prompt: { text: 'add retries to the payments client', at: 15800, ms: 32 },
+    lines: [
+      [17100, user('add retries to the payments client')],
+      [17500, ln('<span class="dot">●</span> Update(src/payments/client.ts)')],
+      [17650, ln('  <span class="faint">└ 18 additions, 4 removals</span>')],
+      [18000, ln('<span class="dot">●</span> Write(src/payments/retry.ts)')],
+      [18150, ln('  <span class="faint">└ wrote 42 lines</span>')],
+      [18600, ln('<span class="dot">●</span> Added retries with exponential backoff and jitter.')],
+    ] },
+  { from: 20900, to: 25600, num: '03', cap: 'the mod — after Claude changes code, it offers the check',
+    lines: [
+      [21000, user('notjunior own: Claude changed these files in this session — check I understand the changes before I ship them: src/payments/client.ts, src/payments/retry.ts')],
+      [21400, ln('notjunior · own: 2 files Claude changed', 'hd')],
+      [21650, ln('Before you ship it — in your own words, all five at once:')],
+      [21900, ln('  1  what does this change do, and why is it needed?', 'soft')],
+      [22150, ln('  2  why this way — what else could it have done?', 'soft')],
+      [22400, ln('  3  what else does it touch?', 'soft')],
+      [22650, ln('  4  how could it fail, and how would you know?', 'soft')],
+      [22900, ln('  5  how would you undo it?', 'soft')],
+      [22900, gap],
+      [23150, ln('<i>“I don’t know” to any of them is fine — that’s what this is for.</i>', 'faint')],
+    ] },
+  { from: 25900, to: 30600, num: '04', cap: 'at the commit — a nudge, never a gate (unless you choose hold)',
+    prompt: { text: 'looks fine, commit it', at: 26100, ms: 34 },
+    lines: [
+      [27000, user('looks fine, commit it')],
+      [27400, ln('<span class="dot">●</span> Bash(git commit -m "add retries to the payments client")')],
+      [28300, ln('  <span class="faint">└ [main 4f2c1a9] add retries to the payments client</span>')],
+    ] },
+];
+const BAND = { from: 19200, to: 20900, press: 20600 };
+const TOAST = { from: 27700, to: 30500 };
+const END = { from: 30800, out: 32600, total: 33000 };
+
+const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+const ease = x => { x = clamp(x, 0, 1); return x * x * (3 - 2 * x); };
+const window01 = (t, from, to, d = 300) => Math.min(ease((t - from) / d), 1 - ease((t - to) / d));
+
+const body = document.getElementById('body');
+const scenes = SCENES.map(s => {
+  const el = document.createElement('div');
+  el.className = 'scene';
+  el.innerHTML = s.lines.map(([, html]) => html).join('');
+  body.appendChild(el);
+  return { ...s, el, items: [...el.children].map((child, i) => [s.lines[i][0], child]) };
+});
+
+function render(t) {
+  const $ = id => document.getElementById(id);
+  let typed = '', typing = false;
+  let caption = null;
+  for (const s of scenes) {
+    const on = window01(t, s.from, s.to);
+    s.el.style.opacity = on;
+    for (const [at, child] of s.items) {
+      const p = ease((t - at) / 250);
+      child.style.opacity = p;
+      child.style.transform = `translateY(${(1 - p) * 4}px)`;
+    }
+    if (t >= s.from - 150 && t < s.to + 150) caption = s;
+    if (s.prompt && t >= s.prompt.at) {
+      const sent = s.lines[0][0];
+      if (t < sent) {
+        const n = Math.min(s.prompt.text.length, Math.floor((t - s.prompt.at) / s.prompt.ms));
+        typed = s.prompt.text.slice(0, n);
+        typing = true;
+      }
+    }
+  }
+  // the prompt box: what the person is typing, then empty again once it is sent
+  const caretOn = typing || Math.floor(t / 530) % 2 === 0;
+  $('ptext').innerHTML = typed.replace(/&/g, '&amp;').replace(/</g, '&lt;') + (caretOn ? '<span class="caret"></span>' : '');
+  // caption follows the scene on screen
+  if (caption) {
+    $('capnum').textContent = caption.num;
+    $('captxt').textContent = caption.cap;
+    $('cap').style.opacity = window01(t, caption.from - 150, caption.to + 150, 250);
+  } else {
+    $('cap').style.opacity = 0;
+  }
+  $('band').style.opacity = window01(t, BAND.from, BAND.to, 250);
+  $('bcheck').classList.toggle('press', t >= BAND.press && t < BAND.to);
+  $('toast').style.opacity = window01(t, TOAST.from, TOAST.to, 250);
+  $('toast').style.transform = `translateY(${(1 - ease((t - TOAST.from) / 250)) * 8}px)`;
+  // end card over the stage, then out for a soft loop
+  const gone = ease((t - END.from) / 400);
+  $('win').style.opacity = 1 - gone;
+  $('end').style.opacity = Math.min(ease((t - END.from) / 500), 1 - ease((t - END.out) / 400));
+  document.querySelector('.brand').style.opacity = 1 - gone;
+}
+window.render = render;
+const q = new URLSearchParams(location.search); render(Number(q.get('t') || 0));
+</script>
