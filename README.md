@@ -169,7 +169,7 @@ The skill only runs when you ask. The moment that matters most — code Claude w
 - **`/notjunior-check`** puts the check request in your prompt box for you to send; **`/notjunior-notebook`** shows your notebook — open questions for your team, misconceptions you've corrected, how far the map has fallen behind `HEAD`.
 - **A hand-off to the skill**: when notjunior loads, it is told which files Claude changed this session, so `own` checks exactly what was written for you.
 
-It makes no network or model calls and writes nothing; it reads `.notjunior/` and runs read-only `git`. The band and pane draw in a terminal and in the Desktop app's Code tab; in the VS Code extension and in headless runs, the hold, the hand-off, and the commands' text replies still work. The mod needs Claude Code 2.1.287 or later; other agents installing with `npx skills` get the skill alone.
+It counts what changed during Claude's turns — through its edit tools or the shell, committed or not — and leaves out what you changed yourself between turns, and anything outside the project. It makes no network or model calls and writes nothing; it reads `.notjunior/` and runs read-only `git`. The band and pane draw in a terminal — VS Code's integrated terminal included — and in the Desktop app's Code tab. In the VS Code extension's chat panel and in headless runs nothing a mod draws appears, so the nudge comes from Claude in the conversation instead; the hold, the hand-off, and the commands' text replies work everywhere. The mod needs Claude Code 2.1.287 or later; other agents installing with `npx skills` get the skill alone.
 
 ### Install
 

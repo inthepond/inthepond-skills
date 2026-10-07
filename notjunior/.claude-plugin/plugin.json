@@ -1,6 +1,6 @@
 {
   "name": "notjunior",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Know why, not just what: understand the project you work in, then explain it back. Its mod offers an explain-back check after Claude changes files, and before they ship.",
   "author": { "name": "inthepond", "url": "https://inthepond.com.au/" },
   "homepage": "https://github.com/inthepond/inthepond-skills/tree/main/notjunior",

@@ -2,9 +2,9 @@ import type { NotebookView } from '../types'
 
 export type ShipMode = 'nudge' | 'hold' | 'off'
 
-// A `git commit`, `git push` or `gh pr create` anywhere in a shell line,
-// including after `&&`, `;` or a `git -C <dir>`.
-const SHIP = /(?:^|[\s;&|()])(?:git\s+(?:-C\s+\S+\s+)?(?:commit|push)|gh\s+pr\s+create)(?=\s|$)/
+// A `git commit`, `git push` or `gh pr create` anywhere in a shell line, including after
+// `&&` or `;`, and after git's own options (`-C <dir>`, `-c key=value`, `--no-pager`).
+const SHIP = /(?:^|[\s;&|()])(?:git(?:\s+(?:-[cC]\s+\S+|--[\w-]+(?:=\S+)?))*\s+(?:commit|push)|gh\s+pr\s+create)(?=\s|$)/
 
 export const shipMode = (value: unknown): ShipMode =>
   value === 'hold' || value === 'off' ? value : 'nudge'
@@ -57,6 +57,44 @@ export const handoffNote = (files: readonly string[]): string =>
   `\n\n---\nFrom the notjunior mod: in this session the coding agent changed ${plural(files.length, 'file')} ` +
   `that the person has not yet explained back: ${files.join(', ')}. ` +
   'For an `own` check, scope it to these files.'
+
+// Said to the model, for surfaces that draw no toast: it tells the person in the conversation.
+export const nudgeContext = (files: readonly string[]): string =>
+  `notjunior (a mod the person installed): this command ships changes made in this session that the person ` +
+  `has not yet explained back — ${plural(files.length, 'file')}: ${files.join(', ')}. ` +
+  'Let them know in one short line, once: /notjunior-check, or asking "notjunior own", walks through them. Do not hold anything up.'
+
+// The surfaces that draw a mod's toasts (and its band and pane).
+export const drawsToasts = (surfaces: readonly string[]): boolean =>
+  surfaces.some(surface => surface === 'terminal' || surface === 'desktop')
+
+export type Snapshot = { head: string | null; files: ReadonlyMap<string, string> }
+
+// `git status --porcelain=v1 -z`: "XY path\0", with renames and copies as "XY new\0old\0".
+export const parsePorcelain = (out: string): { path: string; isDeleted: boolean }[] => {
+  const parts = out.split('\0')
+  const entries: { path: string; isDeleted: boolean }[] = []
+  for (let i = 0; i < parts.length; i++) {
+    const entry = parts[i] ?? ''
+    if (entry.length < 4) continue
+    const status = entry.slice(0, 2)
+    entries.push({ path: entry.slice(3), isDeleted: status.includes('D') })
+    if (status.includes('R') || status.includes('C')) i++
+  }
+  return entries
+}
+
+export const splitNames = (out: string): string[] => out.split('\0').filter(name => name !== '')
+
+// What a turn changed: content that differs from before it, plus whatever it committed.
+export const changedBetween = (before: Snapshot, after: Snapshot, committed: readonly string[]): string[] => {
+  const changed = new Set<string>()
+  for (const [path, hash] of after.files) {
+    if (before.files.get(path) !== hash) changed.add(path)
+  }
+  for (const path of committed) changed.add(path)
+  return [...changed].filter(path => !isNotebookPath(path))
+}
 
 export const nudgeText = (files: readonly string[]): string =>
   `notjunior: ${plural(files.length, 'changed file')} not explained back yet — /notjunior-check when you're ready`
